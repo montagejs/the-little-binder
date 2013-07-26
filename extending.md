@@ -65,7 +65,7 @@ evaluated.
 
 `toSql(syntax, table)`
 
-The syntax tree in question would be:
+The syntax tree for the FRB expression would be:
 
 ```javascript
 var syntax = {type: "sortedBlock", args: [
@@ -84,6 +84,56 @@ var syntax = {type: "sortedBlock", args: [
         {type: "literal", value: "name"}
     ]}
 ]}
+```
+
+One approach would be to translate this into a syntax tree for the SQL
+and then stringify that to SQL.
+
+```javascript
+var syntax = {
+    type: "select",
+    where: {type: "like", args: [
+        {type: "property", args: [
+            {type: "value"},
+            {type: "literal", value: "name"}
+        ]},
+        {type: "literal", value: "A%"}
+    ]},
+    sortedBy: [
+        {type: "property", args: [
+            {type: "value"},
+            {type: "literal", value: "name"}
+        ]}
+    ]
+};
+```
+
+It will probably be handy in the course of doing this to have a SQL
+syntax type with methods like `where` and `sortedBy` that would create a
+copy of the current syntax and extend it.
+
+```javascript
+function SqlSyntax(type) {
+    this.type = type || "select";
+    this.where = null;
+    this.sortedBy = null;
+}
+
+SqlSyntax.prototype.clone = function () {
+    var clone = new SqlSyntax();
+    clone.type = this.type;
+    clone.where = this.where;
+    clone.sortedBy = this.sortedBy;
+    return clone;
+};
+
+SqlSyntax.prototype.where = function (syntax) {
+};
+
+SqlSyntax.prototype.sortedBy = function (syntax) {
+    
+};
+
 ```
 
 To be continued…
